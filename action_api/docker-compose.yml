@@ -1,0 +1,49 @@
+version: '3.5'
+
+services:
+  actions_api:
+    build:
+      context: .
+    ports:
+      - "${ACTION_PORT}:${ACTION_PORT}"
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+    networks:
+      - actions_network
+
+  mongo:
+    ports:
+      - "27017:${MONGO_PORT}"
+    image: mongo:6.0.9-jammy
+    container_name: mongo-actions
+    hostname: mongo
+    restart: always
+    logging:
+      options:
+        max-size: 1g
+    env_file:
+      - .env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASS}
+    networks:
+      - actions_network
+
+  nginx:
+    image: nginx:1.25.1
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/site.conf:/etc/nginx/conf.d/site.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - actions_api
+    networks:
+      - actions_network
+
+networks:
+  actions_network:
+    name: actions_network

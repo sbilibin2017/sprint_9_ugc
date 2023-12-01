@@ -1,0 +1,145 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.coverage.run]
+include = ["action_api/*", "elk/*"]
+
+[tool.isort]
+known_first_party = ["action_api", "benchmark", "elk", "tests"]
+line_length = 88
+profile = "black"
+py_version = "311"
+
+[tool.poetry]
+authors = ["Name Surname <author@mail.com>"]
+description = ""
+name = "backend"
+readme = "README.md"
+version = "0.1.0"
+
+[tool.poetry.dependencies]
+black = "^23.7.0"
+fastapi = {extras = ["all"], version = "^0.100.1"}
+isort = "^5.12.0"
+pydantic-settings = "^2.0.2"
+pylint = "^2.17.5"
+pylint-pydantic = "^0.2.4"
+pylint-pytest = "^1.1.2"
+pyright = "^1.1.318"
+python = "^3.11"
+pyupgrade = "^3.10.1"
+ruff = "^0.0.282"
+sort-all = "^1.2.0"
+toml-sort = "^0.23.1"
+uvicorn = {extras = ["standard"], version = "^0.23.1"}
+
+[tool.pylint]
+disable = [
+  "broad-except",
+  "cannot-enumerate-pytest-fixtures",
+  "consider-using-from-import",
+  "consider-using-sys-exit",
+  "duplicate-code",
+  "fixme",
+  "missing-docstring",
+  "no-member",
+  "protected-access",
+  "too-few-public-methods",
+  "too-many-instance-attributes",
+  "too-many-locals",
+  "too-many-statements",
+  "unnecessary-ellipsis"
+]
+extension-pkg-allow-list = [
+  "orjson",
+  "pydantic"
+]
+ignore-path = [
+  "^.*venv/.*$"
+]
+load-plugins = [
+  "pylint_pydantic",
+  "pylint_pytest"
+]
+max-args = 15
+max-line-length = 88
+recursive = true
+
+[tool.pylint.basic]
+argument-rgx = "^_{0,2}[a-z][a-z0-9]*$"
+attr-rgx = "^_{0,2}[a-z][a-z0-9]*$"
+class-attribute-rgx = "^_{0,2}[a-zA-Z][a-zA-Z0-9_]*$"
+variable-rgx = "^_{0,2}[a-z][a-z0-9]*$"
+
+[tool.pyright]
+exclude = [
+  ".venv"
+]
+include = [
+  "action_api",
+  "benchmark",
+  "elk"
+]
+pythonPlatform = "All"
+pythonVersion = "3.11"
+reportConstantRedefenition = "none"
+reportMissingTypeStubs = "none"
+reportPrivateUsage = "information"
+reportPropertyTypeMismatch = "warning"
+reportUninitializedInstanceVariable = "warning"
+reportUnknownMemberType = "none"
+reportUnnecessaryTypeIgnoreComment = "warning"
+reportUntypedFunctionDecorator = "warning"
+typeCheckingMode = "strict"
+useLibraryCodeForTypes = true
+venv = ".venv"
+venvPath = "."
+
+[tool.ruff]
+ignore = [
+  # Pyright automatically infers the type of `self`
+  "ANN101",
+  # Pyright automatically infers the type of `cls`
+  "ANN102",
+  # In some cases actively detrimental; somewhat conflicts with black
+  "COM",
+  # Ignore missing docstrings
+  "D102",
+  # In combination with D213, this results in noisy diffs and inconsistencies
+  # See also <https://github.com/charliermarsh/ruff/issues/4174>.
+  "D200",
+  # This results inconsistencies between function and class docstrings
+  # See also <https://github.com/charliermarsh/ruff/issues/4175>.
+  "D202",
+  # D211 is preferred since the extra blank line isn't visually useful
+  "D203",
+  # D213 is preferred since it's more readable and allows more characters
+  "D212",
+  # Ignore missing docstrings
+  "D414",
+  # Covered by D401, which is more restrictive
+  "D415",
+  # Type-checkers interpret redundant `as` as exporting an item
+  "PLC0414",
+  # Causes churn and awful looking import blocks for little gain
+  "TCH"
+]
+select = ["ALL"]
+
+[tool.ruff.per-file-ignores]
+"tests/*" = [
+  "D100",
+  "D103",
+  "D104",
+  "S101"
+]
+
+[tool.tomlsort]
+all = true
+ignore_case = true
+in_place = true

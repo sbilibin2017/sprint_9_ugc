@@ -1,0 +1,65 @@
+version: '3.2'
+
+services:
+
+  elasticsearch:
+    image: elasticsearch:7.17.12
+    environment:
+      discovery.type: single-node
+    ports:
+      - 9200:9200
+    volumes:
+      - ./tmp/esdata:/usr/share/elasticsearch/data
+
+  kibana:
+    image: elastic/kibana:7.17.12
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  logstash:
+    image: elastic/logstash:7.17.12
+    depends_on:
+      - elasticsearch
+    environment:
+      XPACK_MONITORING_ENABLED: "false"
+      ES_HOST: "elasticsearch:9200"
+    ports:
+      - "5044:5044/udp"
+    volumes:
+      - ./config/logstash.conf:/config/logstash.conf:ro
+      - ./tmp/logs/nginx/:/var/log/nginx/:ro
+    command: logstash -f /config/logstash.conf
+
+  nginx:
+    image: nginx:1.25.2
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://127.0.0.1:5044
+        tag: nginx
+    volumes:
+      - ./tmp/logs/nginx/:/var/log/nginx/
+  app:
+    build:
+      context: ./src
+      dockerfile: ./deploy/Dockerfile
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./src/app:/code
+
+  filebeat:
+    image: elastic/filebeat:7.17.12
+    volumes:
+      - ./tmp/logs/nginx:/var/log/nginx:ro
+      - ./src/deploy/filebeat.yml:/usr/share/filebeat/filebeat.yml
+    depends_on:
+      - app
+      - nginx
+      - logstash
+      - elasticsearch
+      - kibana
+    links:
+      - logstash
